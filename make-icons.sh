@@ -1,0 +1,1 @@
+node 'C:/Users/amallick.ENGINEERS/Documents/aadildev/scripts/make-pwa-icons/make-icons.js' 'C:\Users\amallick.ENGINEERS\Documents\aadildev\projects\time-logger\public\favicon.svg' 'C:\Users\amallick.ENGINEERS\Documents\aadildev\projects\time-logger\public\icons'
