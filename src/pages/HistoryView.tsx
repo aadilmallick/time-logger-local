@@ -148,9 +148,9 @@ export const HistoryView = () => {
                             </span>
                           </div>
                         </div>
-                        <div className="w-12 h-12">
+                        {/* <div>
                           <RingChart percentage={stats.prodPercent} label="" />
-                        </div>
+                        </div> */}
                       </div>
                     </div>
                   </Card>

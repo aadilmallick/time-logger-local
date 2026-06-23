@@ -1,5 +1,7 @@
 // --- UI Components (shadcn inspired) ---
 
+import { X } from "lucide-react";
+
 const Card = ({
   children,
   className = "",
