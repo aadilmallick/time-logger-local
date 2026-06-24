@@ -31,10 +31,19 @@ class DB {
   }
 
   private async seedCategories() {
-    const cats = await this.getAll("categories");
+    const cats = await this.getAll<Category>("categories");
+    // Ensure "No category" fallback exists
+    const hasNoCat = cats.find((c) => c.id === "no-category");
+    if (!hasNoCat) {
+      const noCat = DEFAULT_CATEGORIES.find((c) => c.id === "no-category")!;
+      await this.put("categories", noCat);
+    }
+
     if (cats.length === 0) {
       for (const cat of DEFAULT_CATEGORIES) {
-        await this.put("categories", cat);
+        if (cat.id !== "no-category") {
+          await this.put("categories", cat);
+        }
       }
     }
   }
@@ -90,6 +99,9 @@ class DB {
   }
   async saveCategory(cat: Category) {
     return this.put("categories", cat);
+  }
+  async deleteCategory(id: string) {
+    return this.delete("categories", id);
   }
 
   async getTimeLog(date: string): Promise<TimeLog | undefined> {

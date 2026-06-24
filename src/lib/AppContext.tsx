@@ -37,6 +37,8 @@ type AppContextType = AppState & {
   updateEntry: (entry: Entry) => Promise<boolean>;
   deleteEntry: (entryId: string) => Promise<void>;
   addCategory: (name: string, color: string) => Promise<void>;
+  updateCategory: (id: string, name: string, color: string) => Promise<void>;
+  deleteCategory: (id: string) => Promise<void>;
   refreshData: () => Promise<void>;
   setTheme: (theme: "light" | "dark" | "system") => void;
 };
@@ -375,6 +377,53 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
     showToast("Category added.", "success");
   };
 
+  const updateCategory = async (id: string, name: string, color: string) => {
+    const existing = state.categories.find((c) => c.id === id);
+    if (!existing) return;
+
+    const updatedCat: Category = {
+      ...existing,
+      name,
+      color,
+    };
+    await db.saveCategory(updatedCat);
+    await refreshData();
+    showToast("Category updated.", "success");
+  };
+
+  const deleteCategory = async (id: string) => {
+    if (id === "no-category") return;
+
+    await db.deleteCategory(id);
+
+    // Migration: Update all time logs
+    const allLogs = await db.getAllTimeLogs();
+    for (const log of allLogs) {
+      let modified = false;
+      const updatedEntries = log.entries.map((entry) => {
+        if (entry.categoryId === id) {
+          modified = true;
+          return { ...entry, categoryId: "no-category" };
+        }
+        return entry;
+      });
+
+      if (modified) {
+        await db.saveTimeLog({ ...log, entries: updatedEntries });
+      }
+    }
+
+    // Migration: Update current task
+    if (state.currentTask?.categoryId === id) {
+      const updatedTask = { ...state.currentTask, categoryId: "no-category" };
+      localStorage.setItem("currentTask", JSON.stringify(updatedTask));
+      setState((prev) => ({ ...prev, currentTask: updatedTask }));
+    }
+
+    await refreshData();
+    showToast("Category deleted and entries migrated.", "info");
+  };
+
   const setTheme = (theme: "light" | "dark" | "system") => {
     setState((prev) => ({ ...prev, theme }));
   };
@@ -396,6 +445,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
         updateEntry,
         deleteEntry,
         addCategory,
+        updateCategory,
+        deleteCategory,
         refreshData,
         setTheme,
       }}
