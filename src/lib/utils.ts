@@ -59,6 +59,12 @@ const checkOverlap = (
 
 const DEFAULT_CATEGORIES: Category[] = [
   {
+    id: "no-category",
+    name: "No category",
+    color: "#cbd5e1",
+    createdAt: new Date().toISOString(),
+  },
+  {
     id: "cat-prod",
     name: "Productivity",
     color: "#3b82f6",
